@@ -1,51 +1,116 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>0050 投資策略回測</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <h1>0050 投資策略回測</h1>
-        <p>回測兩種投資策略並比較其報酬率。</p>
-        <div class="inputs">
-            <label for="monthly-invest">每月投入金額 (NTD):</label>
-            <input type="number" id="monthly-invest" value="100">
-            <button onclick="runBacktest()">執行回測</button>
-        </div>
-        <div class="results">
-            <h2>策略結果</h2>
-            <div id="strategy-a-result">
-                <h3>策略 A：每月定期定額</h3>
-                <table id="table-a">
-                    <thead>
-                        <tr>
-                            <th>日期</th>
-                            <th>價格</th>
-                            <th>報酬率 (%)</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-            <div id="strategy-b-result">
-                <h3>策略 B：累積資金買低點</h3>
-                <table id="table-b">
-                    <thead>
-                        <tr>
-                            <th>日期</th>
-                            <th>價格</th>
-                            <th>報酬率 (%)</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-        <canvas id="chart"></canvas>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
+// 全域變數存放價格資料
+let priceData = [];
+
+// 載入 CSV 檔案資料
+async function loadPriceData() {
+    const response = await fetch('0050.csv'); // 假設數據檔名為 0050.csv
+    const text = await response.text();
+    const lines = text.split('\n').slice(1); // 跳過標題列
+    priceData = lines.map(line => {
+        const [date, price] = line.split(',');
+        return { date, price: parseFloat(price) };
+    });
+    alert("價格資料已載入！");
+}
+
+// 策略 A 和策略 B 回測
+function runBacktest() {
+    if (priceData.length === 0) {
+        alert("請先載入價格資料！");
+        return;
+    }
+
+    const monthlyInvest = parseFloat(document.getElementById('monthly-invest').value);
+    const strategyA = [];
+    const strategyB = [];
+    let cashB = 0;
+    let lastHigh = 0;
+
+    priceData.forEach((data, index) => {
+        const { date, price } = data;
+
+        // 策略 A：每月定期投入
+        if (index % 30 === 0) { // 假設每 30 天為一個月
+            const units = monthlyInvest / price;
+            const roi = ((priceData[index + 30]?.price || price) - price) / price * 100;
+            strategyA.push({ date, price, roi: roi.toFixed(2) });
+        }
+
+        // 策略 B：累積資金買低點
+        cashB += monthlyInvest;
+        if (price > lastHigh) {
+            lastHigh = price;
+        } else if (index % 30 === 0 && price < lastHigh) {
+            const units = cashB / price;
+            const roi = ((priceData[index + 30]?.price || price) - price) / price * 100;
+            strategyB.push({ date, price, roi: roi.toFixed(2) });
+            cashB = 0; // 資金歸零
+        }
+    });
+
+    displayResults(strategyA, strategyB);
+}
+
+// 顯示結果
+function displayResults(strategyA, strategyB) {
+    const tableA = document.getElementById('table-a').querySelector('tbody');
+    const tableB = document.getElementById('table-b').querySelector('tbody');
+    tableA.innerHTML = '';
+    tableB.innerHTML = '';
+
+    strategyA.forEach(result => {
+        const row = `<tr><td>${result.date}</td><td>${result.price}</td><td>${result.roi}</td></tr>`;
+        tableA.insertAdjacentHTML('beforeend', row);
+    });
+
+    strategyB.forEach(result => {
+        const row = `<tr><td>${result.date}</td><td>${result.price}</td><td>${result.roi}</td></tr>`;
+        tableB.insertAdjacentHTML('beforeend', row);
+    });
+
+    drawChart(strategyA, strategyB);
+}
+
+// 繪製圖表
+function drawChart(strategyA, strategyB) {
+    const ctx = document.getElementById('chart').getContext('2d');
+    const labels = strategyA.map(a => a.date);
+    const dataA = strategyA.map(a => parseFloat(a.roi));
+    const dataB = strategyB.map(b => parseFloat(b.roi));
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: '策略 A 報酬率 (%)',
+                    data: dataA,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: false,
+                },
+                {
+                    label: '策略 B 報酬率 (%)',
+                    data: dataB,
+                    borderColor: 'rgba(192, 75, 192, 1)',
+                    borderWidth: 1,
+                    fill: false,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                x: { title: { display: true, text: '日期' } },
+                y: { title: { display: true, text: '報酬率 (%)' } }
+            }
+        }
+    });
+}
+
+// 初始載入價格資料
+loadPriceData();
