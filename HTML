@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0050 投資策略回測</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>0050 投資策略回測</h1>
+        <p>回測兩種投資策略並比較其報酬率。</p>
+        <div class="inputs">
+            <label for="monthly-invest">每月投入金額 (NTD):</label>
+            <input type="number" id="monthly-invest" value="100">
+            <button onclick="runBacktest()">執行回測</button>
+        </div>
+        <div class="results">
+            <h2>策略結果</h2>
+            <div id="strategy-a-result">
+                <h3>策略 A：每月定期定額</h3>
+                <table id="table-a">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>價格</th>
+                            <th>報酬率 (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="strategy-b-result">
+                <h3>策略 B：累積資金買低點</h3>
+                <table id="table-b">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>價格</th>
+                            <th>報酬率 (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <canvas id="chart"></canvas>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
