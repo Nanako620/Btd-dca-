@@ -1,0 +1,6 @@
+investment-backtest/
+│
+├── index.html          # 主網頁
+├── script.js           # JavaScript 邏輯
+├── style.css           # 樣式
+└── data.csv            # 0050 的歷史價格資料
