@@ -1,0 +1,33 @@
+async function loadData() {
+    const response = await fetch("data.csv");
+    const text = await response.text();
+    const rows = text.split("\n").slice(1).map(row => {
+        const [date, close] = row.split(",");
+        return { date: new Date(date), close: parseFloat(close) };
+    });
+    return rows;
+}
+
+function strategyA(data, monthlyInvest) {
+    let shares = 0, totalInvested = 0;
+    const results = [];
+    data.forEach((entry, index) => {
+        if (index % 30 === 0) {
+            shares += monthlyInvest / entry.close;
+            totalInvested += monthlyInvest;
+            const value = shares * entry.close;
+            const roi = ((value - totalInvested) / totalInvested) * 100;
+            results.push({ date: entry.date, price: entry.close, roi });
+        }
+    });
+    return results;
+}
+
+function strategyB(data, monthlyInvest) {
+    let cash = 0, shares = 0, totalInvested = 0;
+    const results = [];
+    for (let i = 30; i < data.length; i++) {
+        if (data[i].close === Math.min(...data.slice(i - 30, i).map(e => e.close))) {
+            shares += cash / data[i].close;
+            totalInvested += cash;
+            const value = shares * data[i
