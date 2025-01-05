@@ -1,0 +1,50 @@
+body {
+    background-color: black;
+    color: #A2C3C8;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 90%;
+    margin: 20px auto;
+}
+
+h1, h2, h3 {
+    text-align: center;
+}
+
+.inputs {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.inputs input {
+    padding: 5px;
+    margin: 10px;
+    border-radius: 5px;
+    border: 1px solid #A2C3C8;
+}
+
+.inputs button {
+    padding: 8px 15px;
+    background-color: #A2C3C8;
+    border: none;
+    border-radius: 5px;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.results table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+.results th, .results td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #A2C3C8;
+}
